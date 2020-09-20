@@ -1,0 +1,70 @@
+@import "palette";
+@import "variables";
+
+.disp-block {
+  display: block;
+}
+
+.disp-none {
+  display: none;
+}
+
+.disp-flex {
+  display: flex;
+}
+
+.justify-content--center {
+  justify-content: center;
+}
+
+.justify-content--space-between {
+  justify-content: space-between;
+}
+
+.justify-content--space-around {
+  justify-content: space-around;
+}
+
+.justify-content--end {
+  justify-content: flex-end;
+}
+
+.justify-content--start {
+  justify-content: flex-start;
+}
+
+.align-items--center {
+  align-items: center;
+}
+
+.flex-dir--col {
+  flex-direction: column;
+}
+
+.text-left {
+  text-align: right;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.margin-right-1 {
+  margin-right: 1rem;
+}
+
+.margin-left-1 {
+  margin-right: 1rem;
+}
+
+.margin-top-1 {
+  margin-top: 1rem;
+}
+
+.margin-bottom-1 {
+  margin-bottom: 1rem;
+}
+
+.auth-card {
+	border-radius: 0.5rem;
+}

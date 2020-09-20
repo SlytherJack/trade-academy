@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-tradeacademynew-dev-10651-authRole",
+      "UnauthRoleArn": "arn:aws:iam::136138509410:role/amplify-tradeacademynew-dev-10651-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::136138509410:role/amplify-tradeacademynew-dev-10651-authRole",
+      "Region": "ap-south-1",
+      "DeploymentBucketName": "amplify-tradeacademynew-dev-10651-deployment",
+      "UnauthRoleName": "amplify-tradeacademynew-dev-10651-unauthRole",
+      "StackName": "amplify-tradeacademynew-dev-10651",
+      "StackId": "arn:aws:cloudformation:ap-south-1:136138509410:stack/amplify-tradeacademynew-dev-10651/784d8af0-faaf-11ea-9a3a-02c8ac154338",
+      "AmplifyAppId": "d1tvc9722vnhcz"
+    },
+    "categories": {
+      "auth": {
+        "tradeacademynewfdf21af8": {}
+      }
+    }
+  }
+}
