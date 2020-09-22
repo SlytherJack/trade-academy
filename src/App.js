@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
+import Login from './components/auth/Login';
+import Signup from './components/auth/Signup';
+import Home from './components/home/Home';
 
 const theme = createMuiTheme({
     palette: {
@@ -43,65 +46,47 @@ class App extends Component {
             authRequired: true,
         },
         {
+            path: '/',
+            component: Login,
+            exact: true,
+            name: 'login',
+            authRequired: false,
+        },
+        {
             path: '/login',
             component: Login,
             exact: true,
             name: 'login',
             authRequired: false,
-            customProps: {
-                title: 'Login',
-                name: 'login',
-                store: authenticationStore,
-            }
         },
         {
             path: '/signup',
             component: Signup,
             exact: true,
             name: 'signUp',
-            authRequired: false,
-            customProps: {
-                title: 'Welcome',
-                name: 'signUp',
-                store: authenticationStore,
-            }
+            authRequired: false
         },
-        {
-            path: '/resendmail',
-            component: ResendMail,
-            exact: true,
-            name: 'resendMail',
-            authRequired: false,
-            customProps: {
-                title: 'Resend link',
-                name: 'resendMail',
-                store: authenticationStore,
-            }
-        },
-        {
-            path: '/create_password',
-            component: CreatePassword,
-            exact: true,
-            name: 'createPassword',
-            authRequired: false,
-            customProps: {
-                title: 'Generate Password',
-                name: 'createPassword',
-                store: authenticationStore,
-            }
-        },
-        {
-            path: '/forgot_password',
-            component: ForgotPassword,
-            exact: true,
-            name: 'forgotPassword',
-            authRequired: false,
-            customProps: {
-                title: 'Request new password',
-                name: 'forgotPassword',
-                store: authenticationStore,
-            }
-        }
+        // {
+        //     path: '/resendmail',
+        //     component: ResendMail,
+        //     exact: true,
+        //     name: 'resendMail',
+        //     authRequired: false,
+        // },
+        // {
+        //     path: '/create_password',
+        //     component: CreatePassword,
+        //     exact: true,
+        //     name: 'createPassword',
+        //     authRequired: false,
+        // },
+        // {
+        //     path: '/forgot_password',
+        //     component: ForgotPassword,
+        //     exact: true,
+        //     name: 'forgotPassword',
+        //     authRequired: false,
+        // }
     ];
 
     render() {
