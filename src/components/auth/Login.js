@@ -1,34 +1,49 @@
 import { Component } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import { validateEmail, validatePassword } from '../../utils/helpers';
+import { Auth } from 'aws-amplify';
 
 class Login extends Component {
     constructor(props) {
         this.state = {
             email: '',
             password: '',
+            snackBarMessage: '',
             loggedIn: false,
+            setNewPassword: false,
             isLoading: false
         };
     }
 
-    handleSubmit(e) {
+    handleSubmit = (e) => {
         e.preventDefault();
 
         const { signedIn, email, password } = this.state;
 
-        if (!loggedIn) {
-            Auth.SignIn({
-                username,
-                password
-            })
-            .then(res => {
-                this.setState({signedUpSuccess: true});
-            })
-            .catch(err => {
-                this.setState({signedUpSuccess: true});
+        this.setState({isLoading: true});
+
+        Auth.SignIn({
+            username,
+            password
+        })
+        .then(user => {
+            if (user.hasOwnProperty("challengeName") && user.challengeName === 'NEW_PASSWORD_REQUIRED') {
+                this.setState({
+                    isLoading: false,
+                    loggedInSuccess: false,
+                    snackBarMessage: "Seems like you are entering a temporary password. Please create a fresh new password using the link previously sent to your mail or generate a new link here."
+                });
+            }
+
+            this.setState({loggedInSuccess: true});
+        })
+        .catch(err => {
+            this.setState({
+                isLoading: false,
+                loggedInSuccess: false,
+                snackBarMessage: "Error logging in."
             });
-        }
+        });
     }
 
     handleChange = (e) => {
@@ -44,9 +59,9 @@ class Login extends Component {
 
     render () {
         let snackBar = null;
-        const { signedUp } = this.state;
+        const { loggedIn, snackBarMessage } = this.state;
 
-        if (this.state.signedUpSuccess) {
+        if (snackBarMessage.length) {
             button = (
                 <Snackbar
                     anchorOrigin={{
@@ -56,10 +71,9 @@ class Login extends Component {
                     open={open}
                     autoHideDuration={6000}
                     onClose={handleClose}
-                    message="Note archived"
+                    message={snackBarMessage}
                     action={
                     <React.Fragment>
-                        Signed Up!
                         <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
                         <CloseIcon fontSize="small" />
                         </IconButton>
@@ -69,43 +83,8 @@ class Login extends Component {
             );
         }
 
-        if (signedUp) {
-            return (
-                <div class="auth-content-container">
-                    <Card className="auth-card">
-                        <CardContent>
-                            <Typography className="form-title" color="textSecondary" gutterBottom>
-                                Login
-                            </Typography>
-
-                            <form className="auth-form confirm-Login" noValidate autoComplete="off">
-                                <TextField
-                                    error={!validateEmail(this.username)}
-                                    id="filled-basic"
-                                    label="Username"
-                                    variant="filled"
-                                    onChange={this.handleChange}
-                                    name="username"
-                                    required
-                                />
-                                <TextField
-                                    id="filled-basic"
-                                    label="Confirmation Code"
-                                    variant="filled"
-                                    type="number"
-                                    onChange={this.handleChange}
-                                    name="confirmationCode"
-                                    required
-                                />
-                                <Button variant="contained" color="primary">
-                                    Confirm Login
-                                </Button>
-                            </form>
-                        </CardContent>
-                    </Card>
-                    {snackBar}
-                </div>
-            );
+        if (loggedIn) {
+            this.props.history.push("/home");
         } else {
             return (
                 <div class="auth-content-container">
@@ -117,15 +96,6 @@ class Login extends Component {
 
                             <form className="auth-form Login" noValidate autoComplete="off">
                                 <TextField
-                                    error={!validateEmail(this.username)}
-                                    id="filled-basic"
-                                    label="Username"
-                                    variant="filled"
-                                    onChange={this.handleChange}
-                                    name="username"
-                                    required
-                                />
-                                <TextField
                                     error={!validateEmail(this.email)}
                                     id="filled-basic"
                                     label="Email"
@@ -136,18 +106,14 @@ class Login extends Component {
                                     required
                                 />
                                 <TextField
-                                    error={!validatePassword(this.password)}
                                     id="filled-basic"
                                     label="Password"
                                     variant="filled"
                                     type="password"
-                                    helperText="Password must be of 8 characters at least"
                                     onChange={this.handleChange}
                                     name="password"
                                     required
                                 />
-                                <TextField id="filled-basic" label="Phone" variant="filled" />
-                                <TextField id="filled-basic" label="Login" variant="filled" />
                                 <Button variant="contained" color="primary">
                                     Login
                                 </Button>

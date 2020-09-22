@@ -36,6 +36,13 @@ class App extends Component {
      */
     routes = [
         {
+            path: '/home',
+            component: Home,
+            exact: true,
+            name: 'home',
+            authRequired: true,
+        },
+        {
             path: '/login',
             component: Login,
             exact: true,
