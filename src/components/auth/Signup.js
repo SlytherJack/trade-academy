@@ -10,6 +10,7 @@ class Signup extends Component {
             password: '',
             phone: '',
             signedUp: false,
+            confirmationCode,
             signedUpSuccess: false,
             isLoading: false
         };
@@ -18,22 +19,32 @@ class Signup extends Component {
     handleSubmit(e) {
         e.preventDefault();
 
-        const { username, password, email, phone } = this.state;
+        const { username, password, email, phone, signedUp } = this.state;
 
-        Auth.signUp({
-            username,
-            password,
-            attributes: {
-                email,
-                phone_number
-            }
-        })
-        .then(res => {
-            if (res.userConfirmed) {
+        if (!signedUp) {
+            Auth.signUp({
+                username,
+                password,
+                attributes: {
+                    email,
+                    phone_number: phone
+                }
+            })
+            .then(res => {
+                if (res.userConfirmed) {
+                    this.setState({signedUpSuccess: true});
+                }
+            })
+            .catch(err => {
                 this.setState({signedUpSuccess: true});
-                alert('Signed Up');
-            }
-        });
+            });
+        } else {
+            Auth.confirmSignUp(username, confirmationCode)
+            .then(res => {
+                this.setState({signedUp: true});
+                console.log('Already signed up.');
+            });
+        }
     }
 
     handleChange = (e) => {
@@ -49,6 +60,7 @@ class Signup extends Component {
 
     render () {
         let snackBar = null;
+        const { signedUp } = this.state;
 
         if (this.state.signedUpSuccess) {
             button = (
@@ -73,56 +85,95 @@ class Signup extends Component {
             );
         }
 
-        return (
-            <div class="auth-content-container">
-                <Card className="auth-card">
-                    <CardContent>
-                        <Typography className="form-title" color="textSecondary" gutterBottom>
-                            Signup
-                        </Typography>
-
-                        <form className="auth-form" noValidate autoComplete="off">
-                            <TextField
-                                error={!validateEmail(this.username)}
-                                id="filled-basic"
-                                label="Username"
-                                variant="filled"
-                                onChange={this.handleChange}
-                                name="username"
-                                required
-                            />
-                            <TextField
-                                error={!validateEmail(this.email)}
-                                id="filled-basic"
-                                label="Email"
-                                variant="filled"
-                                type="email"
-                                onChange={this.handleChange}
-                                name="email"
-                                required
-                            />
-                            <TextField
-                                error={!validatePassword(this.password)}
-                                id="filled-basic"
-                                label="Password"
-                                variant="filled"
-                                type="password"
-                                helperText="Password must be of 8 characters at least"
-                                onChange={this.handleChange}
-                                name="password"
-                                required
-                            />
-                            <TextField id="filled-basic" label="Phone" variant="filled" />
-                            <TextField id="filled-basic" label="Signup" variant="filled" />
-                            <Button variant="contained" color="primary">
+        if (signedUp) {
+            return (
+                <div class="auth-content-container">
+                    <Card className="auth-card">
+                        <CardContent>
+                            <Typography className="form-title" color="textSecondary" gutterBottom>
                                 Signup
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
-                {snackBar}
-            </div>
-        );
+                            </Typography>
+
+                            <form className="auth-form confirm-signup" noValidate autoComplete="off">
+                                <TextField
+                                    error={!validateEmail(this.username)}
+                                    id="filled-basic"
+                                    label="Username"
+                                    variant="filled"
+                                    onChange={this.handleChange}
+                                    name="username"
+                                    required
+                                />
+                                <TextField
+                                    id="filled-basic"
+                                    label="Confirmation Code"
+                                    variant="filled"
+                                    type="number"
+                                    onChange={this.handleChange}
+                                    name="confirmationCode"
+                                    required
+                                />
+                                <Button variant="contained" color="primary">
+                                    Confirm Signup
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
+                    {snackBar}
+                </div>
+            );
+        } else {
+            return (
+                <div class="auth-content-container">
+                    <Card className="auth-card">
+                        <CardContent>
+                            <Typography className="form-title" color="textSecondary" gutterBottom>
+                                Signup
+                            </Typography>
+
+                            <form className="auth-form signup" noValidate autoComplete="off">
+                                <TextField
+                                    error={!validateEmail(this.username)}
+                                    id="filled-basic"
+                                    label="Username"
+                                    variant="filled"
+                                    onChange={this.handleChange}
+                                    name="username"
+                                    required
+                                />
+                                <TextField
+                                    error={!validateEmail(this.email)}
+                                    id="filled-basic"
+                                    label="Email"
+                                    variant="filled"
+                                    type="email"
+                                    onChange={this.handleChange}
+                                    name="email"
+                                    required
+                                />
+                                <TextField
+                                    error={!validatePassword(this.password)}
+                                    id="filled-basic"
+                                    label="Password"
+                                    variant="filled"
+                                    type="password"
+                                    helperText="Password must be of 8 characters at least"
+                                    onChange={this.handleChange}
+                                    name="password"
+                                    required
+                                />
+                                <TextField id="filled-basic" label="Phone" variant="filled" />
+                                <TextField id="filled-basic" label="Signup" variant="filled" />
+                                <Button variant="contained" color="primary">
+                                    Signup
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
+                    {snackBar}
+                </div>
+            );
+        }
     }
 }
 
