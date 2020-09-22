@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
+import { validateEmail, validatePassword } from '../../utils/helpers';
 
 class Signup extends Component {
     constructor(props) {
@@ -35,9 +36,15 @@ class Signup extends Component {
         });
     }
 
-    handleChange(e) {
+    handleChange = (e) => {
         e.preventDefault();
+        this.setState({
+            [e.target.name]: e.target.value
+        });
+    }
 
+    handleClose(e) {
+        e.preventDefault();
     }
 
     render () {
@@ -68,26 +75,50 @@ class Signup extends Component {
 
         return (
             <div class="auth-content-container">
-                <Card className={classes.root}>
+                <Card className="auth-card">
                     <CardContent>
-                        <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Word of the Day
+                        <Typography className="form-title" color="textSecondary" gutterBottom>
+                            Signup
                         </Typography>
-                        <Typography variant="h5" component="h2">
-                        be{bull}nev{bull}o{bull}lent
-                        </Typography>
-                        <Typography className={classes.pos} color="textSecondary">
-                        adjective
-                        </Typography>
-                        <Typography variant="body2" component="p">
-                        well meaning and kindly.
-                        <br />
-                        {'"a benevolent smile"'}
-                        </Typography>
+
+                        <form className="auth-form" noValidate autoComplete="off">
+                            <TextField
+                                error={!validateEmail(this.username)}
+                                id="filled-basic"
+                                label="Username"
+                                variant="filled"
+                                onChange={this.handleChange}
+                                name="username"
+                                required
+                            />
+                            <TextField
+                                error={!validateEmail(this.email)}
+                                id="filled-basic"
+                                label="Email"
+                                variant="filled"
+                                type="email"
+                                onChange={this.handleChange}
+                                name="email"
+                                required
+                            />
+                            <TextField
+                                error={!validatePassword(this.password)}
+                                id="filled-basic"
+                                label="Password"
+                                variant="filled"
+                                type="password"
+                                helperText="Password must be of 8 characters at least"
+                                onChange={this.handleChange}
+                                name="password"
+                                required
+                            />
+                            <TextField id="filled-basic" label="Phone" variant="filled" />
+                            <TextField id="filled-basic" label="Signup" variant="filled" />
+                            <Button variant="contained" color="primary">
+                                Signup
+                            </Button>
+                        </form>
                     </CardContent>
-                    <CardActions>
-                        <Button size="small">Learn More</Button>
-                    </CardActions>
                 </Card>
                 {snackBar}
             </div>
