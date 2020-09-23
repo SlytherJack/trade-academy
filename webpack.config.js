@@ -54,7 +54,7 @@ module.exports = (node_env, options) => {
         plugins: [
             new HtmlWebPackPlugin({
                 template: path.resolve(__dirname, 'public/index.html'),
-                favicon: "./src/spark.ico",
+                favicon: "./src/favicon.ico",
                 filename: 'index.html', // Render this file through webpack dev server
                 inject: true
             }),

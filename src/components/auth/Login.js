@@ -1,10 +1,14 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import { validateEmail, validatePassword } from '../../utils/helpers';
 import { Auth } from 'aws-amplify';
+import { Button, Card, CardContent, Grid, IconButton, TextField, Typography } from '@material-ui/core';
+import './Auth.scss';
 
 class Login extends Component {
     constructor(props) {
+        super(props);
+
         this.state = {
             email: '',
             password: '',
@@ -87,41 +91,66 @@ class Login extends Component {
             this.props.history.push("/home");
         } else {
             return (
-                <div class="auth-content-container">
-                    <Card className="auth-card">
-                        <CardContent>
-                            <Typography className="form-title" color="textSecondary" gutterBottom>
-                                Login
-                            </Typography>
+                <Grid
+                    container
+                    direction="column"
+                    justify="center"
+                    alignItems="center"
+                    className="main-container login"
+                >
+                    <Grid
+                        className="grid-item"
+                        item
+                        xs={12}
+                        sm={6}
+                        lg={4}
+                    >
+                        <Card className="auth-card">
+                            <CardContent>
+                                <h2 className="form-title">Trade Academy</h2>
+                                <p className="sub-title">Login to continue</p>
 
-                            <form className="auth-form Login" noValidate autoComplete="off">
-                                <TextField
-                                    error={!validateEmail(this.email)}
-                                    id="filled-basic"
-                                    label="Email"
-                                    variant="filled"
-                                    type="email"
-                                    onChange={this.handleChange}
-                                    name="email"
-                                    required
-                                />
-                                <TextField
-                                    id="filled-basic"
-                                    label="Password"
-                                    variant="filled"
-                                    type="password"
-                                    onChange={this.handleChange}
-                                    name="password"
-                                    required
-                                />
-                                <Button variant="contained" color="primary">
-                                    Login
-                                </Button>
-                            </form>
-                        </CardContent>
-                    </Card>
-                    {snackBar}
-                </div>
+                                <form className="auth-form Login" noValidate autoComplete="off">
+                                    <TextField
+                                        error={!validateEmail(this.email)}
+                                        id="filled-basic"
+                                        label="Email"
+                                        variant="filled"
+                                        type="email"
+                                        onChange={this.handleChange}
+                                        name="email"
+                                        required
+                                    />
+                                    <TextField
+                                        id="filled-basic"
+                                        label="Password"
+                                        variant="filled"
+                                        type="password"
+                                        onChange={this.handleChange}
+                                        name="password"
+                                        required
+                                    />
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        className="auth-action-button"
+                                        disableElevation
+                                    >
+                                        Login
+                                    </Button>
+                                </form>
+
+                                <p class="copyright-text">
+                                    &#169; Trade Academy 2020-21. All Rights Reserved.
+                                    <br/>
+                                    All content shown here is the sole property of Trade Academy.
+                                    Any attempt to infringe rights shall be treated with power of law.
+                                </p>
+                            </CardContent>
+                        </Card>
+                        {snackBar}
+                    </Grid>
+                </Grid>
             );
         }
     }

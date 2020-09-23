@@ -1,4 +1,7 @@
+import { createMuiTheme, ThemeProvider } from '@material-ui/core';
+import { Auth } from 'aws-amplify';
 import React, { Component } from 'react';
+import { BrowserRouter, Redirect, Route } from 'react-router-dom';
 import './App.css';
 import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
@@ -7,26 +10,20 @@ import Home from './components/home/Home';
 const theme = createMuiTheme({
     palette: {
         primary: {
-        // light: will be calculated from palette.primary.main,
-        main: '#5FB691',
-        // dark: will be calculated from palette.primary.main,
-        // contrastText: will be calculated to contrast with palette.primary.main
+            main: '#5FB691',
         },
         secondary: {
             main: '#F87060',
         },
-        // Used by `getContrastText()` to maximize the contrast between
-        // the background and the text.
         contrastThreshold: 3,
-        // Used by the functions below to shift a color's luminance by approximately
-        // two indexes within its tonal palette.
-        // E.g., shift from Red 500 to Red 300 or Red 700.
         tonalOffset: 0.2,
     },
 });
 
 class App extends Component {
     constructor(props) {
+        super(props);
+
         this.state = {
             user: null,
             isAuthenticated: false
@@ -39,18 +36,11 @@ class App extends Component {
      */
     routes = [
         {
-            path: '/home',
+            path: '/',
             component: Home,
             exact: true,
             name: 'home',
             authRequired: true,
-        },
-        {
-            path: '/',
-            component: Login,
-            exact: true,
-            name: 'login',
-            authRequired: false,
         },
         {
             path: '/login',
@@ -65,35 +55,36 @@ class App extends Component {
             exact: true,
             name: 'signUp',
             authRequired: false
-        },
-        // {
-        //     path: '/resendmail',
-        //     component: ResendMail,
-        //     exact: true,
-        //     name: 'resendMail',
-        //     authRequired: false,
-        // },
-        // {
-        //     path: '/create_password',
-        //     component: CreatePassword,
-        //     exact: true,
-        //     name: 'createPassword',
-        //     authRequired: false,
-        // },
-        // {
-        //     path: '/forgot_password',
-        //     component: ForgotPassword,
-        //     exact: true,
-        //     name: 'forgotPassword',
-        //     authRequired: false,
-        // }
+        }
     ];
+
+    componentDidMount() {
+        window.addEventListener('resize', this.handleResize);
+        this.authenticateUser();
+    }
+
+    async authenticateUser() {
+        try {
+            const user = await Auth.currentAuthenticatedUser();
+
+            this.setState({
+                isAuthenticated: true,
+            });
+        } catch (error) {
+            this.setState({
+                isAuthenticated: false,
+            });
+
+            console.log(error);
+        }
+    }
 
     render() {
         return (
-            <ThemeProvider theme={theme}>
+            <ThemeProvider
+                theme={theme}
+            >
                 <div className="App">
-                    {/*Routing is handled by this component*/}
                     <BrowserRouter>
                         {
                             /**
@@ -107,12 +98,23 @@ class App extends Component {
                                     key={name}
                                     render={
                                         (props) => {
-                                            return (
-                                                <C
-                                                    {...props}
-                                                    {...customProps}
-                                                />
-                                            );
+                                            if (authRequired) {
+                                                if(!this.state.isAuthenticated) {
+                                                    return <Redirect to="/login"/>;
+                                                } else {
+                                                    return (
+                                                        <C
+                                                            {...props}
+                                                        />
+                                                    );
+                                                }
+                                            } else {
+                                                return (
+                                                    <C
+                                                        {...props}
+                                                    />
+                                                );
+                                            }
                                         }
                                     }
                                 />
