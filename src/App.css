@@ -9,3 +9,8 @@
     flex-direction: column;
     flex-grow: 1;
 }
+
+button {
+    border-radius: 1rem !important;
+    color: white !important;
+}

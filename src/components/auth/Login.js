@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
-import { validateEmail, validatePassword } from '../../utils/helpers';
+import { validateEmail } from '../../utils/helpers';
 import { Auth } from 'aws-amplify';
-import { Button, Card, CardContent, Grid, IconButton, TextField, Typography } from '@material-ui/core';
+import { Button, Card, CardContent, Grid, IconButton, TextField } from '@material-ui/core';
 import './Auth.scss';
+import { Link } from 'react-router-dom';
 
 class Login extends Component {
     constructor(props) {
@@ -40,6 +41,9 @@ class Login extends Component {
             }
 
             this.setState({loggedInSuccess: true});
+
+            // Calling this method from the App component
+            this.props.customProps.onSignInSuccess(user);
         })
         .catch(err => {
             this.setState({
@@ -135,12 +139,18 @@ class Login extends Component {
                                         color="primary"
                                         className="auth-action-button"
                                         disableElevation
+                                        size="large"
                                     >
                                         Login
                                     </Button>
                                 </form>
 
-                                <p class="copyright-text">
+                                <div className="secondary-inputs">
+                                    <Link to="/signup">New here? Create an account.</Link>
+                                    <Link to="/forgot_password">Forgot Password?</Link>
+                                </div>
+
+                                <p className="copyright-text">
                                     &#169; Trade Academy 2020-21. All Rights Reserved.
                                     <br/>
                                     All content shown here is the sole property of Trade Academy.

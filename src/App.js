@@ -3,7 +3,9 @@ import { Auth } from 'aws-amplify';
 import React, { Component } from 'react';
 import { BrowserRouter, Redirect, Route } from 'react-router-dom';
 import './App.css';
+import AlertModal from './components/alert-modal/AlertModal';
 import Login from './components/auth/Login';
+import ErrorBoundary from './components/ErrorBoundary';
 import Signup from './components/auth/Signup';
 import Home from './components/home/Home';
 
@@ -26,7 +28,8 @@ class App extends Component {
 
         this.state = {
             user: null,
-            isAuthenticated: false
+            isAuthenticated: false,
+            isAuthenticating: true
         };
     }
 
@@ -40,7 +43,7 @@ class App extends Component {
             component: Home,
             exact: true,
             name: 'home',
-            authRequired: true,
+            authRequired: true
         },
         {
             path: '/login',
@@ -48,78 +51,93 @@ class App extends Component {
             exact: true,
             name: 'login',
             authRequired: false,
+            customProps: {
+                onSignInSuccess: this.onSignInSuccess
+            }
         },
         {
             path: '/signup',
             component: Signup,
             exact: true,
-            name: 'signUp',
+            name: 'signup',
             authRequired: false
         }
     ];
 
     componentDidMount() {
-        window.addEventListener('resize', this.handleResize);
         this.authenticateUser();
     }
 
-    async authenticateUser() {
-        try {
-            const user = await Auth.currentAuthenticatedUser();
+    onSignInSuccess = user => {
+        this.setState({
+            user,
+            isAuthenticated: true,
+            isAuthenticating: false
+        });
+    }
 
-            this.setState({
-                isAuthenticated: true,
-            });
-        } catch (error) {
-            this.setState({
-                isAuthenticated: false,
-            });
+    authenticateUser() {
+        Auth.currentAuthenticatedUser()
+        .then(this.onAuthenticateUserSuccess)
+        .catch(this.onAuthenticateUserFailure);
+    }
 
-            console.log(error);
-        }
+    onAuthenticateUserSuccess = user => {
+        this.setState({
+            user,
+            isAuthenticated: true,
+            isAuthenticating: false
+        });
+    }
+
+    onAuthenticateUserFailure = error => {
+        this.setState({
+            isAuthenticated: false,
+            isAuthenticating: false
+        });
     }
 
     render() {
         return (
-            <ThemeProvider
-                theme={theme}
-            >
+            <ThemeProvider theme={theme}>
                 <div className="App">
                     <BrowserRouter>
-                        {
-                            /**
-                             * Looping over the routes array defined at the top and spitting out
-                             * <Route/> component for each of our modules defined in this project
-                             */
-                            this.routes.map(({ path, component: C, exact, name, customProps, authRequired }) => (
-                                <Route
-                                    path={path}
-                                    exact={exact}
-                                    key={name}
-                                    render={
-                                        (props) => {
-                                            if (authRequired) {
-                                                if(!this.state.isAuthenticated) {
-                                                    return <Redirect to="/login"/>;
-                                                } else {
-                                                    return (
-                                                        <C
-                                                            {...props}
+                    {
+                        /**
+                         * Looping over the routes array defined at the top and spitting out
+                         * <Route/> component for each of our modules defined in this project
+                         */
+                        this.routes.map(({ path, component: C, exact, name, customProps, authRequired }) => (
+                            <Route
+                                path={path}
+                                exact={exact}
+                                key={name}
+                                render={
+                                    (props) => {
+                                        if (authRequired && !this.state.isAuthenticated) {
+                                            return <Redirect to="/login"/>;
+                                        } else {
+                                            return (
+                                                <ErrorBoundary
+                                                    render={(error, errorInfo) => {
+                                                        <AlertModal
+                                                            open={true}
+                                                            type="error"
+                                                            title="Error"
+                                                            body={errorInfo}
+                                                            btnText="Close"
                                                         />
-                                                    );
-                                                }
-                                            } else {
-                                                return (
-                                                    <C
-                                                        {...props}
-                                                    />
-                                                );
-                                            }
+                                                    }}
+                                                >
+                                                    <C {...props} customProps={customProps}/>
+                                                </ErrorBoundary>
+                                            );
                                         }
                                     }
-                                />
-                            ))
-                        }
+                                }
+                            />
+                        ))
+                    }
                     </BrowserRouter>
                 </div>
             </ThemeProvider>
