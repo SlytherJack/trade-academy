@@ -1,22 +1,28 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { validateEmail, validatePassword } from '../../utils/helpers';
 import './Auth.scss';
 import { Button, Card, CardContent, Grid, TextField, Typography } from '@material-ui/core';
 import { Auth } from 'aws-amplify';
+import AlertModal from '../alert-modal/AlertModal';
 
 class Signup extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            username: '',
+            fullname: '',
             email: '',
             password: '',
             phone: '',
             signedUp: false,
             confirmationCode: '',
             signedUpSuccess: false,
-            isLoading: false
+            isLoading: false,
+            openAlertModal: false,
+            alertModalType: '',
+            alertModalTitle: '',
+            alertModalBody: '',
+            alertModalBtnText: '',
         };
     }
 
@@ -36,18 +42,22 @@ class Signup extends Component {
         this.signUp();
     }
 
+    componentDidMount() {
+    }
+
     signUp() {
         this.setState({isLoading: true});
 
-        const { username, password, email, phone, signedUp, confirmationCode } = this.state;
+        const { fullName, email, password, phone, signedUp, confirmationCode } = this.state;
 
         if (!signedUp) {
             Auth.signUp({
-                username,
+                username: email,
                 password,
                 attributes: {
                     email,
-                    phone_number: phone
+                    phone_number: phone,
+                    full_name: fullName
                 }
             })
             .then(this.onSignupSuccess)
@@ -60,11 +70,24 @@ class Signup extends Component {
     onSignupSuccess = res => {
         if (res.userConfirmed) {
             this.setState({isLoading: false, signedUpSuccess: true});
+
+            this.showAlertModal(
+                'Success',
+                `Signup successful. Please check your Email for a confirmation
+                    which will be arriving shortly. Use that code to complete the signup process.`,
+                'Dismiss'
+            );
         }
     }
 
     onSignupFailure = err => {
         this.setState({isLoading: false, signedUpSuccess: false});
+
+        this.showAlertModal(
+            'Error',
+            `Something went wrong while signing you up.`,
+            'Dismiss'
+        );
     }
 
     confirmSignUp() {
@@ -81,9 +104,22 @@ class Signup extends Component {
         this.setState({isLoading: false, signedUp: false});
     }
 
+    showAlertModal(alertModalType, alertModalTitle, alertModalBody, alertModalBtnText) {
+        this.setState({openAlertModal: true, alertModalType, alertModalTitle, alertModalBody, alertModalBtnText});
+    }
+
     render () {
         let content = null;
-        const { signedUp, isLoading } = this.state;
+        const {
+            email,
+            signedUp,
+            isLoading,
+            openAlertModal,
+            alertModalType,
+            alertModalTitle,
+            alertModalBody,
+            alertModalBtnText
+        } = this.state;
 
         if (signedUp) {
             content = (
@@ -94,12 +130,12 @@ class Signup extends Component {
 
                         <form className="auth-form confirm-signup" onSubmit={this.handleSubmit} autoComplete="off">
                             <TextField
-                                error={!validateEmail(this.username)}
+                                error={!validateEmail(email)}
                                 id="filled-basic"
-                                label="Username"
+                                label="Email"
                                 variant="filled"
                                 onChange={this.handleChange}
-                                name="username"
+                                name="email"
                                 required
                             />
                             <TextField
@@ -132,13 +168,13 @@ class Signup extends Component {
                         <h2 className="form-title">Trade Academy</h2>
                         <p className="sub-title">Sign Up</p>
 
-                        <form className="auth-form signup" onSubmit={this.handleSubmit} noValidate autoComplete="off">
+                        <form className="auth-form signup" onSubmit={this.handleSubmit} autoComplete="off">
                             <TextField
                                 id="filled-basic"
-                                label="Username"
+                                label="Full Name"
                                 variant="filled"
                                 onChange={this.handleChange}
-                                name="username"
+                                name="fullName"
                                 required
                             />
                             <TextField
@@ -185,23 +221,33 @@ class Signup extends Component {
         }
 
         return (
-            <Grid
-                container
-                direction="column"
-                justify="center"
-                alignItems="center"
-                className="main-container login"
-            >
+            <Fragment>
                 <Grid
-                    className="grid-item"
-                    item
-                    xs={12}
-                    sm={6}
-                    lg={4}
+                    container
+                    direction="column"
+                    justify="center"
+                    alignItems="center"
+                    className="main-container login"
                 >
-                    {content}
+                    <Grid
+                        className="grid-item"
+                        item
+                        xs={12}
+                        sm={6}
+                        lg={4}
+                    >
+                        {content}
+                    </Grid>
                 </Grid>
-            </Grid>
+                <AlertModal
+                    open={openAlertModal}
+                    type={alertModalType}
+                    title={alertModalTitle}
+                    body={alertModalBody}
+                    btnText={alertModalBtnText}
+                    onBtnClick={() => {}}
+                />
+            </Fragment>
         );
     }
 }

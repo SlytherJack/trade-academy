@@ -1,0 +1,32 @@
+.MuiDialog-container {
+    .MuiPaper-root {
+        .MuiDialogTitle-root {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+
+            .indicator {
+                border-radius: 100%;
+                border: 4px solid white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 36px;
+                height: 36px;
+                color: white;
+
+                &.success {
+                    background-color: green;
+                }
+
+                &.info {
+                    background-color: blue;
+                }
+
+                &.error {
+                    background-color: red;
+                }
+            }
+        }
+    }
+}
