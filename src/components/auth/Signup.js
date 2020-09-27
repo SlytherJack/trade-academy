@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { validateEmail, validatePassword } from '../../utils/helpers';
+import { validateEmail, validatePassword, validatePhone } from '../../utils/helpers';
 import './Auth.scss';
-import { Button, Card, CardContent, Grid, TextField, Typography } from '@material-ui/core';
+import { Button, Card, CardContent, CircularProgress, Grid, TextField, Typography } from '@material-ui/core';
 import { Auth } from 'aws-amplify';
 import AlertModal from '../alert-modal/AlertModal';
 
@@ -10,13 +10,13 @@ class Signup extends Component {
         super(props);
 
         this.state = {
-            fullname: '',
+            fullName: '',
             email: '',
             password: '',
             phone: '',
             signedUp: false,
+            signUpComplete: false,
             confirmationCode: '',
-            signedUpSuccess: false,
             isLoading: false,
             openAlertModal: false,
             alertModalType: '',
@@ -39,7 +39,12 @@ class Signup extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        this.signUp();
+
+        if (!this.state.signedUp) {
+            this.signUp();
+        } else {
+            this.confirmSignUp();
+        }
     }
 
     componentDidMount() {
@@ -50,28 +55,24 @@ class Signup extends Component {
 
         const { fullName, email, password, phone, signedUp, confirmationCode } = this.state;
 
-        if (!signedUp) {
-            Auth.signUp({
-                username: email,
-                password,
-                attributes: {
-                    email,
-                    phone_number: phone,
-                    full_name: fullName
-                }
-            })
-            .then(this.onSignupSuccess)
-            .catch(this.onSignupFailure);
-        } else {
-
-        }
+        Auth.signUp({
+            username: email,
+            password,
+            attributes: {
+                email,
+                phone_number: phone
+            }
+        })
+        .then(this.onSignupSuccess)
+        .catch(this.onSignupFailure);
     }
 
     onSignupSuccess = res => {
-        if (res.userConfirmed) {
-            this.setState({isLoading: false, signedUpSuccess: true});
+        if (res.user) {
+            this.setState({isLoading: false, signedUp: true});
 
             this.showAlertModal(
+                'Success',
                 'Success',
                 `Signup successful. Please check your Email for a confirmation
                     which will be arriving shortly. Use that code to complete the signup process.`,
@@ -83,9 +84,21 @@ class Signup extends Component {
     onSignupFailure = err => {
         this.setState({isLoading: false, signedUpSuccess: false});
 
+        let erroMsg = '';
+
+        switch(err.code) {
+            case 'UsernameExistsException':
+                erroMsg = 'A user with that email already exists. Please login.';
+            break;
+            default:
+                erroMsg = `Something went wrong while signing you up.`;
+            break;
+        }
+
         this.showAlertModal(
             'Error',
-            `Something went wrong while signing you up.`,
+            'Error',
+            erroMsg,
             'Dismiss'
         );
     }
@@ -97,21 +110,41 @@ class Signup extends Component {
     }
 
     onConfirmSignUpSuccess = res => {
-        this.setState({isLoading: false, signedUp: true});
+        this.setState({isLoading: false, signUpComplete: true});
+
+        this.showAlertModal(
+            'Success',
+            'Success',
+            `Signup complete. You will now be redirected to the login page.`,
+            'Dismiss'
+        );
     }
 
     onConfirmSignUpFailure = err => {
-        this.setState({isLoading: false, signedUp: false});
+        this.setState({isLoading: false});
+
+        this.showAlertModal(
+            'Error',
+            'Error',
+            `Could not complete sign up process. Please try again.`,
+            'Dismiss'
+        );
     }
 
     showAlertModal(alertModalType, alertModalTitle, alertModalBody, alertModalBtnText) {
         this.setState({openAlertModal: true, alertModalType, alertModalTitle, alertModalBody, alertModalBtnText});
     }
 
+    dismissAlertModal() {
+        this.setState({openAlertModal: false});
+    }
+
     render () {
         let content = null;
         const {
             email,
+            password,
+            phone,
             signedUp,
             isLoading,
             openAlertModal,
@@ -131,7 +164,7 @@ class Signup extends Component {
                         <form className="auth-form confirm-signup" onSubmit={this.handleSubmit} autoComplete="off">
                             <TextField
                                 error={!validateEmail(email)}
-                                id="filled-basic"
+                                id="confirm-code-email-input"
                                 label="Email"
                                 variant="filled"
                                 onChange={this.handleChange}
@@ -139,7 +172,8 @@ class Signup extends Component {
                                 required
                             />
                             <TextField
-                                id="filled-basic"
+                                error={!validateEmail(email)}
+                                id="confirm-code-code-input"
                                 label="Confirmation Code"
                                 variant="filled"
                                 type="number"
@@ -170,36 +204,48 @@ class Signup extends Component {
 
                         <form className="auth-form signup" onSubmit={this.handleSubmit} autoComplete="off">
                             <TextField
-                                id="filled-basic"
+                                id="signup-name-input"
                                 label="Full Name"
                                 variant="filled"
                                 onChange={this.handleChange}
                                 name="fullName"
+                                size="small"
                                 required
                             />
                             <TextField
-                                error={!validateEmail(this.email)}
-                                id="filled-basic"
+                                error={!validateEmail(email)}
+                                id="signup-email-input"
                                 label="Email"
                                 variant="filled"
                                 type="email"
                                 onChange={this.handleChange}
                                 name="email"
+                                size="small"
                                 required
                             />
                             <TextField
-                                error={!validatePassword(this.password)}
-                                id="filled-basic"
+                                error={!validatePassword(password)}
+                                id="signup-password-input"
                                 label="Password"
                                 variant="filled"
                                 type="password"
-                                helperText="Password must be of 8 characters at least"
+                                helperText="Password must be of 8 characters at least and contain one Uppercase,
+                                one Lowercase letter, one Special Character and a Number"
                                 onChange={this.handleChange}
                                 name="password"
+                                size="small"
                                 required
                             />
-                            <TextField id="filled-basic" label="Phone" variant="filled" />
-                            <TextField id="filled-basic" label="Signup" variant="filled" />
+                            <TextField
+                                error={!validatePhone(phone)}
+                                id="signup-phone-input"
+                                helperText="Indian phone numbers only. Eg: +919869589963"
+                                label="Phone"
+                                variant="filled"
+                                onChange={this.handleChange}
+                                name="phone"
+                                size="small"
+                            />
                             <div className="loading-button-wrapper">
                                 <Button
                                     type="submit"
@@ -215,6 +261,10 @@ class Signup extends Component {
                                 {isLoading && <CircularProgress size={24} className="circular-progress" />}
                             </div>
                         </form>
+
+                        <p className="copyright-text">
+                            By signing up, you agree to Trade Academy's Terms and Conditions.
+                        </p>
                     </CardContent>
                 </Card>
             );
@@ -245,7 +295,7 @@ class Signup extends Component {
                     title={alertModalTitle}
                     body={alertModalBody}
                     btnText={alertModalBtnText}
-                    onBtnClick={() => {}}
+                    onBtnClick={this.dismissAlertModal}
                 />
             </Fragment>
         );

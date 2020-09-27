@@ -60,12 +60,10 @@
             width: 100%;
         }
 
-        .circular-progress {
-            position: 'absolute';
-            top: '50%';
-            left: '50%';
-            margin-top: -12px;
-            margin-left: -12px;
+        .MuiCircularProgress-root {
+            position: absolute;
+            top: 0.5rem;
+            left: 36%;
         }
     }
 

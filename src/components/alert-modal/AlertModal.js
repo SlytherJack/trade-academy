@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, Typography } from '@material-ui/core';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import { withStyles } from '@material-ui/core/styles';
 import React, { Fragment } from 'react';
@@ -15,9 +15,7 @@ function AlertModal(props) {
 
     const { type, open, title, body, btnText, onBtnClick } = props;
 
-    const handleClose = () => {
-
-    }
+    const handleClose = () => {}
 
     const getIndicatorDOMElement = () => {
         switch (type) {
