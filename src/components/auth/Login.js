@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import { validateEmail } from '../../utils/helpers';
 import { Auth } from 'aws-amplify';
-import { Button, Card, CardContent, Grid, IconButton, TextField } from '@material-ui/core';
+import { Button, Card, CardContent, Grid, IconButton, responsiveFontSizes, TextField } from '@material-ui/core';
 import './Auth.scss';
 import { Link } from 'react-router-dom';
 
@@ -11,47 +11,31 @@ class Login extends Component {
         super(props);
 
         this.state = {
+            user: null,
             email: '',
             password: '',
-            snackBarMessage: '',
-            loggedIn: false,
+            newPassword: '',
             setNewPassword: false,
-            isLoading: false
+            isLoading: false,
+            openAlertModal: false,
+            alertModalType: '',
+            alertModalTitle: '',
+            alertModalBody: '',
+            alertModalBtnText: '',
+            alertModalBtnAction: this.dismissAlertModal
         };
     }
 
     handleSubmit = (e) => {
         e.preventDefault();
 
-        const { signedIn, email, password } = this.state;
+        const {setNewPassword} = this.state;
 
-        this.setState({isLoading: true});
-
-        Auth.SignIn({
-            username,
-            password
-        })
-        .then(user => {
-            if (user.hasOwnProperty("challengeName") && user.challengeName === 'NEW_PASSWORD_REQUIRED') {
-                this.setState({
-                    isLoading: false,
-                    loggedInSuccess: false,
-                    snackBarMessage: "Seems like you are entering a temporary password. Please create a fresh new password using the link previously sent to your mail or generate a new link here."
-                });
-            }
-
-            this.setState({loggedInSuccess: true});
-
-            // Calling this method from the App component
-            this.props.customProps.onSignInSuccess(user);
-        })
-        .catch(err => {
-            this.setState({
-                isLoading: false,
-                loggedInSuccess: false,
-                snackBarMessage: "Error logging in."
-            });
-        });
+        if (!this.state.setNewPassword) {
+            this.login();
+        } else {
+            this.setNewPassword();
+        }
     }
 
     handleChange = (e) => {
@@ -65,9 +49,90 @@ class Login extends Component {
         e.preventDefault();
     }
 
+    componentDidMount() {
+        this.getCurrentAuthenticatedUser();
+    }
+
+    getCurrentAuthenticatedUser() {
+        Auth.currentAuthenticatedUser()
+        .then(this.onGetCurrentAuthenticatedUserSuccess);
+    }
+
+    onGetCurrentAuthenticatedUserSuccess = user => {
+        this.redirectToHome();
+    }
+
+    redirectToHome = () => {
+        const history = useHistory();
+        history.push("/");
+    }
+
+    login() {
+        const { email, password } = this.state;
+
+        this.setState({isLoading: true});
+
+        Auth.SignIn(email, password)
+        .then(this.onLoginSuccess)
+        .catch(this.onLoginFailure);
+    }
+
+    onLoginSuccess = user => {
+        if (user.hasOwnProperty("challengeName") && user.challengeName === 'NEW_PASSWORD_REQUIRED') {
+            this.setState({
+                isLoading: false,
+                loggedInSuccess: true,
+                snackBarMessage: "Seems like you are entering a temporary password. Please create a fresh new password using the link previously sent to your mail or generate a new link here."
+            });
+        }
+    }
+
+    onLoginFailure = err => {
+        this.setState({
+            isLoading: false
+        });
+
+        this.showAlertModal('Error', 'Error', 'Error signing in. Please try again.', 'Dismiss', this.dismissAlertModal);
+    }
+
+    setNewPassword() {
+        const { user, password, newPassword } = this.state;
+
+        this.setState({isLoading: true, setNewPassword: false});
+
+        Auth.changePassword(user, password, newPassword)
+        .then(this.onSetNewPasswordSuccess)
+        .catch(this.onSetNewPasswordFailure);
+    }
+
+    onSetNewPasswordSuccess = res => {
+        if (responsiveFontSizes) {
+            this.setState({
+                isLoading: false
+            });
+        }
+    }
+
+    onSetNewPasswordFailure = err => {
+        this.setState({
+            isLoading: false,
+            loggedInSuccess: false
+        });
+
+        this.showAlertModal('Error', 'Error', 'Error setting new password. Please try again.', 'Dismiss', this.dismissAlertModal);
+    }
+
+    showAlertModal = (alertModalType, alertModalTitle, alertModalBody, alertModalBtnText, alertModalBtnAction = this.dismissAlertModal) => {
+        this.setState({openAlertModal: true, alertModalType, alertModalTitle, alertModalBody, alertModalBtnText, alertModalBtnAction});
+    }
+
+    dismissAlertModal = () => {
+        this.setState({openAlertModal: false});
+    }
+
     render () {
-        let snackBar = null;
-        const { loggedIn, snackBarMessage } = this.state;
+        let content = null;
+        const { loggedIn } = this.state;
 
         if (snackBarMessage.length) {
             button = (

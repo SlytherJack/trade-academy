@@ -50,9 +50,15 @@ function AlertModal(props) {
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button autoFocus onClick={onBtnClick} color="primary">
-                        {btnText}
-                    </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    disableElevation
+                    size="large"
+                    onClick={onBtnClick}
+                >
+                    Dismiss
+                </Button>
                 </DialogActions>
             </Dialog>
         </Fragment>

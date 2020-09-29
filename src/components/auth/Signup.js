@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { validateEmail, validatePassword, validatePhone } from '../../utils/helpers';
+import { validateEmail, validatePassword, validatePhone, validateCode} from '../../utils/helpers';
 import './Auth.scss';
-import { Button, Card, CardContent, CircularProgress, Grid, TextField, Typography } from '@material-ui/core';
+import { Button, Card, CardContent, CircularProgress, Grid, TextField } from '@material-ui/core';
 import { Auth } from 'aws-amplify';
 import AlertModal from '../alert-modal/AlertModal';
+import { useHistory } from 'react-router-dom';
 
 class Signup extends Component {
     constructor(props) {
@@ -23,6 +24,7 @@ class Signup extends Component {
             alertModalTitle: '',
             alertModalBody: '',
             alertModalBtnText: '',
+            alertModalBtnAction: this.dismissAlertModal
         };
     }
 
@@ -82,29 +84,31 @@ class Signup extends Component {
     }
 
     onSignupFailure = err => {
-        this.setState({isLoading: false, signedUpSuccess: false});
+        this.setState({isLoading: false});
 
-        let erroMsg = '';
+        let erroMsg = 'Something went wrong while signing you up. Please try again.';
+        let alertType = 'Error';
+        let alertTitle = 'Error';
 
-        switch(err.code) {
-            case 'UsernameExistsException':
-                erroMsg = 'A user with that email already exists. Please login.';
-            break;
-            default:
-                erroMsg = `Something went wrong while signing you up.`;
-            break;
+        if (err.code === 'UsernameExistsException') {
+            this.setState({signedUp: true});
+            alertType = 'Info';
+            alertTitle = 'Complete Signup';
+            erroMsg = 'You have already signed up for Trade Academy. Please complete the sign up process by entering the confirmation code.';
         }
 
         this.showAlertModal(
-            'Error',
-            'Error',
+            alertType,
+            alertTitle,
             erroMsg,
             'Dismiss'
         );
     }
 
     confirmSignUp() {
-        Auth.confirmSignUp(username, confirmationCode)
+        const { email, confirmationCode } = this.state;
+
+        Auth.confirmSignUp(email, confirmationCode)
         .then(this.onConfirmSignUpSuccess)
         .catch(this.onConfirmSignUpFailure);
     }
@@ -123,26 +127,46 @@ class Signup extends Component {
     onConfirmSignUpFailure = err => {
         this.setState({isLoading: false});
 
+        let erroMsg = 'Something went wrong while completing the sign up process. Please try again.';
+        let alertType = 'Error';
+        let alertTitle = 'Error';
+        let btnAction = this.dismissAlertModal;
+
+        if (err.code === 'NotAuthorizedException') {
+            this.setState({signUpComplete: true});
+            alertType = 'Info';
+            alertTitle = 'Already Signed Up';
+            erroMsg = 'You have already completed the sign up process for Trade Academy. Please login.';
+            btnAction = this.redirectToLogin;
+        }
+
         this.showAlertModal(
-            'Error',
-            'Error',
-            `Could not complete sign up process. Please try again.`,
-            'Dismiss'
+            alertType,
+            alertTitle,
+            erroMsg,
+            'Dismiss',
+            btnAction
         );
     }
 
-    showAlertModal(alertModalType, alertModalTitle, alertModalBody, alertModalBtnText) {
-        this.setState({openAlertModal: true, alertModalType, alertModalTitle, alertModalBody, alertModalBtnText});
+    showAlertModal = (alertModalType, alertModalTitle, alertModalBody, alertModalBtnText, alertModalBtnAction = this.dismissAlertModal) => {
+        this.setState({openAlertModal: true, alertModalType, alertModalTitle, alertModalBody, alertModalBtnText, alertModalBtnAction});
     }
 
-    dismissAlertModal() {
+    dismissAlertModal = () => {
         this.setState({openAlertModal: false});
+    }
+
+    redirectToLogin = () => {
+        const history = useHistory();
+        history.push("/login");
     }
 
     render () {
         let content = null;
         const {
             email,
+            confirmationCode,
             password,
             phone,
             signedUp,
@@ -151,7 +175,8 @@ class Signup extends Component {
             alertModalType,
             alertModalTitle,
             alertModalBody,
-            alertModalBtnText
+            alertModalBtnText,
+            alertModalBtnAction
         } = this.state;
 
         if (signedUp) {
@@ -164,21 +189,25 @@ class Signup extends Component {
                         <form className="auth-form confirm-signup" onSubmit={this.handleSubmit} autoComplete="off">
                             <TextField
                                 error={!validateEmail(email)}
+                                value={email}
                                 id="confirm-code-email-input"
                                 label="Email"
                                 variant="filled"
+                                type="email"
                                 onChange={this.handleChange}
                                 name="email"
+                                size="small"
                                 required
                             />
                             <TextField
-                                error={!validateEmail(email)}
+                                error={!validateCode(confirmationCode)}
                                 id="confirm-code-code-input"
                                 label="Confirmation Code"
                                 variant="filled"
                                 type="number"
                                 onChange={this.handleChange}
                                 name="confirmationCode"
+                                size="small"
                                 required
                             />
                             <Button
@@ -295,7 +324,7 @@ class Signup extends Component {
                     title={alertModalTitle}
                     body={alertModalBody}
                     btnText={alertModalBtnText}
-                    onBtnClick={this.dismissAlertModal}
+                    onBtnClick={alertModalBtnAction}
                 />
             </Fragment>
         );
