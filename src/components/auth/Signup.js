@@ -4,7 +4,6 @@ import './Auth.scss';
 import { Button, Card, CardContent, CircularProgress, Grid, TextField } from '@material-ui/core';
 import { Auth } from 'aws-amplify';
 import AlertModal from '../alert-modal/AlertModal';
-import { useHistory } from 'react-router-dom';
 
 class Signup extends Component {
     constructor(props) {
@@ -158,8 +157,7 @@ class Signup extends Component {
     }
 
     redirectToLogin = () => {
-        const history = useHistory();
-        history.push("/login");
+        self.props.history.push("/login");
     }
 
     render () {
@@ -220,6 +218,7 @@ class Signup extends Component {
                             >
                                 Confirm Signup
                             </Button>
+                            {isLoading && <CircularProgress size={24} className="circular-progress" />}
                         </form>
                     </CardContent>
                 </Card>

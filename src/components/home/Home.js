@@ -11,7 +11,7 @@ class Home extends Component {
 
     render () {
         return (
-            <h1>{this.props.customProps.user ? 'User is there' : 'User is not there'}</h1>
+            <h1>Home works</h1>
         );
     }
 }

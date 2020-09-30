@@ -27,7 +27,6 @@ class App extends Component {
         super(props);
 
         this.state = {
-            user: null,
             isAuthenticated: false,
             isAuthenticating: true
         };
@@ -42,6 +41,13 @@ class App extends Component {
             path: '/',
             component: Home,
             exact: true,
+            name: 'index',
+            authRequired: true
+        },
+        {
+            path: '/home',
+            component: Home,
+            exact: true,
             name: 'home',
             authRequired: true
         },
@@ -52,7 +58,12 @@ class App extends Component {
             name: 'login',
             authRequired: false,
             customProps: {
-                onSignInSuccess: this.onSignInSuccess
+                onSignInSuccess: () => {
+                    this.setState({
+                        isAuthenticated: true,
+                        isAuthenticating: false
+                    });
+                }
             }
         },
         {
@@ -68,29 +79,20 @@ class App extends Component {
         this.authenticateUser();
     }
 
-    onSignInSuccess = user => {
-        this.setState({
-            user,
-            isAuthenticated: true,
-            isAuthenticating: false
-        });
-    }
-
     authenticateUser() {
         Auth.currentAuthenticatedUser()
-        .then(this.onAuthenticateUserSuccess)
-        .catch(this.onAuthenticateUserFailure);
+        .then(this.onCurrentAuthenticatedUserSuccess)
+        .catch(this.onCurrentAuthenticatedUserFailure);
     }
 
-    onAuthenticateUserSuccess = user => {
+    onCurrentAuthenticatedUserSuccess = user => {
         this.setState({
-            user,
             isAuthenticated: true,
             isAuthenticating: false
         });
     }
 
-    onAuthenticateUserFailure = error => {
+    onCurrentAuthenticatedUserFailure = error => {
         this.setState({
             isAuthenticated: false,
             isAuthenticating: false
@@ -98,6 +100,8 @@ class App extends Component {
     }
 
     render() {
+        const { isAuthenticated } = this.state;
+
         return (
             <ThemeProvider theme={theme}>
                 <div className="App">
@@ -114,10 +118,10 @@ class App extends Component {
                                 key={name}
                                 render={
                                     (props) => {
-                                        if (authRequired && !this.state.isAuthenticated) {
-                                            return <Redirect to="/login"/>;
-                                        } else {
-                                            return (
+                                        if (authRequired) {
+                                            if (!isAuthenticated) {
+                                                return <Redirect to="/login"/>;
+                                            } else {
                                                 <ErrorBoundary
                                                     render={(error, errorInfo) => {
                                                         <AlertModal
@@ -131,7 +135,25 @@ class App extends Component {
                                                 >
                                                     <C {...props} customProps={customProps}/>
                                                 </ErrorBoundary>
-                                            );
+                                            }
+                                        } else {
+                                            if (isAuthenticated) {
+                                                return <Redirect to="/home"/>;
+                                            } else {
+                                                <ErrorBoundary
+                                                    render={(error, errorInfo) => {
+                                                        <AlertModal
+                                                            open={true}
+                                                            type="error"
+                                                            title="Error"
+                                                            body={errorInfo}
+                                                            btnText="Close"
+                                                        />
+                                                    }}
+                                                >
+                                                    <C {...props} customProps={customProps}/>
+                                                </ErrorBoundary>
+                                            }
                                         }
                                     }
                                 }

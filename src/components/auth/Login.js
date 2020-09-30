@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import Snackbar from '@material-ui/core/Snackbar';
-import { validateEmail } from '../../utils/helpers';
+import { validateEmail, validatePassword } from '../../utils/helpers';
 import { Auth } from 'aws-amplify';
-import { Button, Card, CardContent, Grid, IconButton, responsiveFontSizes, TextField } from '@material-ui/core';
+import { Button, Card, CardContent, CircularProgress, Grid, IconButton, responsiveFontSizes, TextField } from '@material-ui/core';
 import './Auth.scss';
 import { Link } from 'react-router-dom';
+import AlertModal from '../alert-modal/AlertModal';
 
 class Login extends Component {
     constructor(props) {
@@ -31,11 +31,7 @@ class Login extends Component {
 
         const {setNewPassword} = this.state;
 
-        if (!this.state.setNewPassword) {
-            this.login();
-        } else {
-            this.setNewPassword();
-        }
+        this.login();
     }
 
     handleChange = (e) => {
@@ -49,22 +45,8 @@ class Login extends Component {
         e.preventDefault();
     }
 
-    componentDidMount() {
-        this.getCurrentAuthenticatedUser();
-    }
-
-    getCurrentAuthenticatedUser() {
-        Auth.currentAuthenticatedUser()
-        .then(this.onGetCurrentAuthenticatedUserSuccess);
-    }
-
-    onGetCurrentAuthenticatedUserSuccess = user => {
-        this.redirectToHome();
-    }
-
     redirectToHome = () => {
-        const history = useHistory();
-        history.push("/");
+        this.props.history.push("/login");
     }
 
     login() {
@@ -72,7 +54,7 @@ class Login extends Component {
 
         this.setState({isLoading: true});
 
-        Auth.SignIn(email, password)
+        Auth.signIn(email, password)
         .then(this.onLoginSuccess)
         .catch(this.onLoginFailure);
     }
@@ -81,9 +63,12 @@ class Login extends Component {
         if (user.hasOwnProperty("challengeName") && user.challengeName === 'NEW_PASSWORD_REQUIRED') {
             this.setState({
                 isLoading: false,
-                snackBarMessage: "Seems like you are entering a temporary password. Please create a fresh new password using the link previously sent to your mail or generate a new link here."
+                setNewPassword: true
             });
+
+            this.showAlertModal('Info', 'Time to set new password', `Seems like you are entering a temporary password. Please create a fresh new password using the link previously sent to your mail or generate a new link here.`, 'Dismiss');
         } else {
+            this.props.customProps.onSignInSuccess();
             this.redirectToHome();
         }
     }
@@ -93,7 +78,7 @@ class Login extends Component {
             isLoading: false
         });
 
-        this.showAlertModal('Error', 'Error', `Couldn't signing in. Please try again.', 'Dismiss`);
+        this.showAlertModal('Error', 'Error', err.message, 'Dismiss');
     }
 
     setNewPassword() {
@@ -111,6 +96,7 @@ class Login extends Component {
             isLoading: false
         });
 
+        this.props.customProps.onSignInSuccess();
         this.redirectToHome();
     }
 
@@ -119,7 +105,7 @@ class Login extends Component {
             isLoading: false,
         });
 
-        this.showAlertModal('Error', 'Error', `Couldn't set new password. Please try again.`, 'Dismiss');
+        this.showAlertModal('Error', 'Error', err.message, 'Dismiss');
     }
 
     showAlertModal = (alertModalType, alertModalTitle, alertModalBody, alertModalBtnText, alertModalBtnAction = this.dismissAlertModal) => {
@@ -132,7 +118,18 @@ class Login extends Component {
 
     render () {
         let content = null;
-        const { setNewPassword } = this.state;
+        const {
+            isLoading,
+            email,
+            newPassword,
+            setNewPassword,
+            openAlertModal,
+            alertModalType,
+            alertModalTitle,
+            alertModalBody,
+            alertModalBtnText,
+            alertModalBtnAction
+        } = this.state;
 
         if (setNewPassword) {
             content = (
@@ -140,7 +137,7 @@ class Login extends Component {
                     <h2 className="form-title">Trade Academy</h2>
                     <p className="sub-title">Set new password</p>
 
-                    <form className="auth-form Login" noValidate autoComplete="off">
+                    <form className="auth-form set-new-password" onSubmit={this.handleSubmit} autoComplete="off">
                         <TextField
                             id="old-password"
                             label="Password"
@@ -151,6 +148,7 @@ class Login extends Component {
                             required
                         />
                         <TextField
+                            error={!validatePassword(newPassword)}
                             id="new-password"
                             label="Password"
                             variant="filled"
@@ -159,15 +157,19 @@ class Login extends Component {
                             name="newPassword"
                             required
                         />
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            className="auth-action-button"
-                            disableElevation
-                            size="large"
-                        >
-                            Proceed
-                        </Button>
+                        <div className="loading-button-wrapper">
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                className="auth-action-button"
+                                disableElevation
+                                size="large"
+                            >
+                                Proceed
+                            </Button>
+                            {isLoading && <CircularProgress size={24} className="circular-progress" />}
+                        </div>
                     </form>
                 </CardContent>
             );
@@ -177,10 +179,10 @@ class Login extends Component {
                     <h2 className="form-title">Trade Academy</h2>
                     <p className="sub-title">Login to continue</p>
 
-                    <form className="auth-form Login" noValidate autoComplete="off">
+                    <form className="auth-form login" onSubmit={this.handleSubmit} autoComplete="off">
                         <TextField
-                            error={!validateEmail(this.email)}
-                            id="filled-basic"
+                            error={!validateEmail(email)}
+                            id="email"
                             label="Email"
                             variant="filled"
                             type="email"
@@ -189,7 +191,7 @@ class Login extends Component {
                             required
                         />
                         <TextField
-                            id="filled-basic"
+                            id="password"
                             label="Password"
                             variant="filled"
                             type="password"
@@ -197,15 +199,19 @@ class Login extends Component {
                             name="password"
                             required
                         />
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            className="auth-action-button"
-                            disableElevation
-                            size="large"
-                        >
-                            Login
-                        </Button>
+                        <div className="loading-button-wrapper">
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                className="auth-action-button"
+                                disableElevation
+                                size="large"
+                            >
+                                Login
+                            </Button>
+                            {isLoading && <CircularProgress size={24} className="circular-progress" />}
+                        </div>
                     </form>
 
                     <div className="secondary-inputs">
