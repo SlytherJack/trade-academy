@@ -27,6 +27,16 @@ class Signup extends Component {
         };
     }
 
+    componentDidMount() {
+        if (this.props.isAuthenticated) {
+            this.redirectToHome();
+        }
+    }
+
+    redirectToHome = () => {
+        this.props.history.push("/");
+    }
+
     handleChange = (e) => {
         e.preventDefault();
         this.setState({

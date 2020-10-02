@@ -1,13 +1,13 @@
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
-import { Auth } from 'aws-amplify';
 import React, { Component } from 'react';
-import { BrowserRouter, Redirect, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import './App.css';
-import AlertModal from './components/alert-modal/AlertModal';
 import Login from './components/auth/Login';
-import ErrorBoundary from './components/ErrorBoundary';
 import Signup from './components/auth/Signup';
+import ErrorBoundary from './components/ErrorBoundary';
 import Home from './components/home/Home';
+import AuthService from './services/auth.service';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const theme = createMuiTheme({
     palette: {
@@ -26,76 +26,32 @@ class App extends Component {
     constructor(props) {
         super(props);
 
+        this.authService = new AuthService();
+
         this.state = {
-            isAuthenticated: false,
-            isAuthenticating: true
+            isAuthenticated: false
         };
     }
-
-    /**
-     * @type {object} routes - This array contains configuration objects which map Routes to Modules,
-     * along-with additional meta-data
-     */
-    routes = [
-        {
-            path: '/',
-            component: Home,
-            exact: true,
-            name: 'index',
-            authRequired: true
-        },
-        {
-            path: '/home',
-            component: Home,
-            exact: true,
-            name: 'home',
-            authRequired: true
-        },
-        {
-            path: '/login',
-            component: Login,
-            exact: true,
-            name: 'login',
-            authRequired: false,
-            customProps: {
-                onSignInSuccess: () => {
-                    this.setState({
-                        isAuthenticated: true,
-                        isAuthenticating: false
-                    });
-                }
-            }
-        },
-        {
-            path: '/signup',
-            component: Signup,
-            exact: true,
-            name: 'signup',
-            authRequired: false
-        }
-    ];
 
     componentDidMount() {
         this.authenticateUser();
     }
 
     authenticateUser() {
-        Auth.currentAuthenticatedUser()
-        .then(this.onCurrentAuthenticatedUserSuccess)
-        .catch(this.onCurrentAuthenticatedUserFailure);
+        this.authService.getCurrentAuthenticatedUser()
+        .then(this.onGetCurrentAuthenticatedUserSuccess)
+        .catch(this.onGetCurrentAuthenticatedUserFailure);
     }
 
-    onCurrentAuthenticatedUserSuccess = user => {
+    onGetCurrentAuthenticatedUserSuccess = user => {
         this.setState({
-            isAuthenticated: true,
-            isAuthenticating: false
+            isAuthenticated: true
         });
     }
 
-    onCurrentAuthenticatedUserFailure = error => {
+    onGetCurrentAuthenticatedUserFailure = error => {
         this.setState({
-            isAuthenticated: false,
-            isAuthenticating: false
+            isAuthenticated: false
         });
     }
 
@@ -105,62 +61,36 @@ class App extends Component {
         return (
             <ThemeProvider theme={theme}>
                 <div className="App">
-                    <BrowserRouter>
-                    {
-                        /**
-                         * Looping over the routes array defined at the top and spitting out
-                         * <Route/> component for each of our modules defined in this project
-                         */
-                        this.routes.map(({ path, component: C, exact, name, customProps, authRequired }) => (
-                            <Route
-                                path={path}
-                                exact={exact}
-                                key={name}
+                    <Router>
+                        <Switch>
+                            <ProtectedRoute exact path='/' isAuthenticated={isAuthenticated} component={Home} />
+                            <Route exact path='/login'
                                 render={
-                                    (props) => {
-                                        if (authRequired) {
-                                            if (!isAuthenticated) {
-                                                return <Redirect to="/login"/>;
-                                            } else {
-                                                <ErrorBoundary
-                                                    render={(error, errorInfo) => {
-                                                        <AlertModal
-                                                            open={true}
-                                                            type="error"
-                                                            title="Error"
-                                                            body={errorInfo}
-                                                            btnText="Close"
-                                                        />
-                                                    }}
-                                                >
-                                                    <C {...props} customProps={customProps}/>
-                                                </ErrorBoundary>
-                                            }
-                                        } else {
-                                            if (isAuthenticated) {
-                                                return <Redirect to="/home"/>;
-                                            } else {
-                                                <ErrorBoundary
-                                                    render={(error, errorInfo) => {
-                                                        <AlertModal
-                                                            open={true}
-                                                            type="error"
-                                                            title="Error"
-                                                            body={errorInfo}
-                                                            btnText="Close"
-                                                        />
-                                                    }}
-                                                >
-                                                    <C {...props} customProps={customProps}/>
-                                                </ErrorBoundary>
-                                            }
-                                        }
+                                    props => {
+                                        return <ErrorBoundary>
+                                            <Login
+                                                {...props}
+                                                isAuthenticated={isAuthenticated}
+                                                onGetCurrentAuthenticatedUserSuccess={this.onGetCurrentAuthenticatedUserSuccess}
+                                            />
+                                        </ErrorBoundary>
                                     }
                                 }
                             />
-                        ))
-                    }
-                    </BrowserRouter>
+                            <Route exact path='/signup'
+                                render={
+                                    props => {
+                                        return <ErrorBoundary>
+                                            <Signup
+                                                {...props}
+                                                isAuthenticated={isAuthenticated}
+                                            />
+                                        </ErrorBoundary>
+                                    }
+                                }
+                            />
+                        </Switch>
+                    </Router>
                 </div>
             </ThemeProvider>
         );

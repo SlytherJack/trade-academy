@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import { validateEmail, validatePassword } from '../../utils/helpers';
 import { Auth } from 'aws-amplify';
 import { Button, Card, CardContent, CircularProgress, Grid, IconButton, responsiveFontSizes, TextField } from '@material-ui/core';
@@ -26,6 +27,16 @@ class Login extends Component {
         };
     }
 
+    static propTypes = {
+        isAuthenticated: PropTypes.bool.isRequired
+    }
+
+    componentDidMount() {
+        if (this.props.isAuthenticated) {
+            this.redirectToHome();
+        }
+    }
+
     handleSubmit = (e) => {
         e.preventDefault();
 
@@ -46,7 +57,7 @@ class Login extends Component {
     }
 
     redirectToHome = () => {
-        this.props.history.push("/login");
+        this.props.history.push("/");
     }
 
     login() {
@@ -68,8 +79,7 @@ class Login extends Component {
 
             this.showAlertModal('Info', 'Time to set new password', `Seems like you are entering a temporary password. Please create a fresh new password using the link previously sent to your mail or generate a new link here.`, 'Dismiss');
         } else {
-            this.props.customProps.onSignInSuccess();
-            this.redirectToHome();
+            this.props.onGetCurrentAuthenticatedUserSuccess();
         }
     }
 
@@ -96,8 +106,7 @@ class Login extends Component {
             isLoading: false
         });
 
-        this.props.customProps.onSignInSuccess();
-        this.redirectToHome();
+        this.props.onGetCurrentAuthenticatedUserSuccess();
     }
 
     onSetNewPasswordFailure = err => {
