@@ -5,7 +5,7 @@ import { Auth } from 'aws-amplify';
 import { Button, Card, CardContent, CircularProgress, Grid, IconButton, responsiveFontSizes, TextField } from '@material-ui/core';
 import './Auth.scss';
 import { Link } from 'react-router-dom';
-import AlertModal from '../alert-modal/AlertModal';
+import AlertModal from '../../components/alert-modal/AlertModal';
 
 class Login extends Component {
     constructor(props) {

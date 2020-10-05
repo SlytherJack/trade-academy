@@ -1,11 +1,11 @@
 import { createMuiTheme, ThemeProvider } from '@material-ui/core';
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import './App.css';
-import Login from './components/auth/Login';
-import Signup from './components/auth/Signup';
+import './App.scss';
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
 import ErrorBoundary from './components/ErrorBoundary';
-import Home from './components/home/Home';
+import Home from './pages/home/Home';
 import AuthService from './services/auth.service';
 import ProtectedRoute from './components/ProtectedRoute';
 

@@ -1,3 +1,5 @@
+@import './partials/variables.scss';
+
 #root {
     display: flex;
     flex-direction: column;
@@ -12,5 +14,12 @@
 
 button {
     border-radius: 1rem !important;
+    background-color: $color-primary !important;
     color: white !important;
+}
+
+.button-alternate {
+    border-radius: 1rem !important;
+    background-color: white !important;
+    color: $color-primary !important;
 }

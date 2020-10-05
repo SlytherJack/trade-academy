@@ -1,0 +1,17 @@
+@import './partials/variables';
+
+.home-header-container {
+    display: flex;
+    background: rgb(145,233,193);
+    background: linear-gradient(270deg, rgba(145,233,193,1) 0%, rgba(95,182,145,1) 75%, rgba(44,134,99,1) 100%);
+    padding: 5rem 2.5rem;
+
+    .main-screen {
+        width: 128px;
+        height: auto;
+    }
+
+    .text-container {
+        width: 50%;
+    }
+}

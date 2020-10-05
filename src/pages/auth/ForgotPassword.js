@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import { validateCode, validatePassword } from '../../utils/helpers';
 import './Auth.scss';
-import AlertModal from '../alert-modal/AlertModal';
+import AlertModal from '../../components/alert-modal/AlertModal';
 
 class Signup extends Component {
     constructor(props) {

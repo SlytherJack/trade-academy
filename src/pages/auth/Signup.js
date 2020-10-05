@@ -3,7 +3,7 @@ import { validateEmail, validatePassword, validatePhone, validateCode} from '../
 import './Auth.scss';
 import { Button, Card, CardContent, CircularProgress, Grid, TextField } from '@material-ui/core';
 import { Auth } from 'aws-amplify';
-import AlertModal from '../alert-modal/AlertModal';
+import AlertModal from '../../components/alert-modal/AlertModal';
 
 class Signup extends Component {
     constructor(props) {
