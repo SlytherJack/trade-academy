@@ -1,1 +1,40 @@
+@import '../../partials/variables.scss';
 
+.home-section {
+    padding: 4rem;
+
+    &.promo{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .section-title {
+            color: $color-gray-primary;
+            font-weight: 600 !important;
+            margin-bottom: 4rem !important;
+            width: 33%;
+            text-align: center;
+        }
+
+        .promo-cards-container {
+            display: flex;
+            justify-content: center;
+
+            .home-promo-card {
+                width: 33%;
+                -webkit-box-shadow: 0px 0px 80px 4px rgba(145,233,193,1);
+                -moz-box-shadow: 0px 0px 80px 4px rgba(145,233,193,1);
+                box-shadow: 0px 0px 80px 4px rgba(145,233,193,1);
+
+                &:first-child {
+                    z-index: 1;
+                    margin-right: -4rem;
+                }
+
+                &:last-child {
+                    z-index: 2;
+                }
+            }
+        }
+    }
+}

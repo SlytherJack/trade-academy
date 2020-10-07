@@ -11,7 +11,6 @@ function HomeHeader(props) {
 
     return (
         <div className="home-header-container">
-            {/* <img src={MainScreen} alt="Main Screen" className="main-screen"></img> */}
             <MainScreen className="main-screen"/>
             <div className="text-container">
                 <Typography variant="h3" className="main-title" gutterBottom>

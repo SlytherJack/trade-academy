@@ -1,0 +1,26 @@
+@import '../../partials/variables.scss';
+
+.MuiCard-root {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+}
+
+.card-num {
+    color: $color-gray-primary--light;
+    font-weight: 700 !important;
+    margin-bottom: 1rem !important;
+}
+
+.card-title {
+    color: $color-gray-primary;
+    font-weight: 600 !important;
+    margin-bottom: 2rem !important;
+}
+
+.card-content {
+    color: $color-gray-primary--dark;
+    font-size: 1.25rem !important;
+    font-weight: 400 !important;
+}
