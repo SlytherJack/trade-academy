@@ -9,6 +9,7 @@ class Home extends Component {
         super(props);
 
         this.state = {
+            openAlertModal: false,
             alertModalType: '',
             alertModalTitle: '',
             alertModalBody: '',
@@ -22,6 +23,15 @@ class Home extends Component {
     }
 
     render () {
+        const {
+            openAlertModal,
+            alertModalType,
+            alertModalTitle,
+            alertModalBody,
+            alertModalBtnText,
+            alertModalBtnAction
+        } = this.state;
+
         return (
             <Fragment>
                 <Grid

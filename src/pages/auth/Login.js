@@ -37,6 +37,12 @@ class Login extends Component {
         }
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.isAuthenticated !== this.props.isAuthenticated && this.props.isAuthenticated) {
+            this.redirectToHome();
+        }
+    }
+
     handleSubmit = (e) => {
         e.preventDefault();
 

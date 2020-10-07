@@ -10,6 +10,16 @@ import AuthService from './services/auth.service';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const theme = createMuiTheme({
+    typography: {
+        fontFamily: [
+            'Lato',
+            'Arial',
+            'sans-serif',
+            '"Apple Color Emoji"',
+            '"Segoe UI Emoji"',
+            '"Segoe UI Symbol"',
+        ].join(','),
+    },
     palette: {
         primary: {
             main: '#5FB691',

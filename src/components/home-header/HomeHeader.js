@@ -1,6 +1,6 @@
 import { Button, Typography } from '@material-ui/core';
 import React from 'react';
-import { MainScreen } from './main-screen.svg';
+import MainScreen from './main-screen.svg';
 import './HomeHeader.scss';
 
 function HomeHeader(props) {
@@ -11,20 +11,21 @@ function HomeHeader(props) {
 
     return (
         <div className="home-header-container">
-            <img src={MainScreen} alt="Main Screen" className="main-screen"></img>
-            <div class="text-container">
-                <Typography variant="h3" gutterBottom>
+            {/* <img src={MainScreen} alt="Main Screen" className="main-screen"></img> */}
+            <MainScreen className="main-screen"/>
+            <div className="text-container">
+                <Typography variant="h3" className="main-title" gutterBottom>
                     THE BEST WAY TO LEARN TRADING
                 </Typography>
 
-                <Typography variant="subtitle1" gutterBottom>
-                    Learn and trade scientific testing strategies by attending live online classes everyday
+                <Typography variant="h5" className="sub-title" gutterBottom>
+                    Learn and trade scientific testing strategies by attending live online classes everyday.
                 </Typography>
 
                 <Button
                     type="button"
                     variant="contained"
-                    className="button-alternate"
+                    className="button-alternate download-app"
                     disableElevation
                     size="large"
                 >

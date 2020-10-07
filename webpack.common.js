@@ -14,7 +14,18 @@ module.exports = {
         rules: [
             {
                 test: /\.(png|j?g|svg|gif)?$/,
-                use: 'file-loader'
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: 'img/[hash]-[name].[ext]',
+                        },
+                    },
+                ],
+            },
+            {
+                test: /\.svg$/,
+                use: ['@svgr/webpack'],
             },
             {
                 test: /\.js?$/,
