@@ -3,17 +3,20 @@
 .home-section {
     padding: 4rem;
 
+    .section-title {
+        color: $color-gray-primary;
+        font-weight: 600 !important;
+        margin-bottom: 4rem !important;
+        text-align: center;
+    }
+
     &.promo{
         display: flex;
         flex-direction: column;
         align-items: center;
 
         .section-title {
-            color: $color-gray-primary;
-            font-weight: 600 !important;
-            margin-bottom: 4rem !important;
             width: 33%;
-            text-align: center;
         }
 
         .promo-cards-container {
@@ -34,6 +37,30 @@
                 &:last-child {
                     z-index: 2;
                 }
+            }
+        }
+    }
+
+    &.how-it-works {
+        div {
+            display: flex;
+            justify-content: center;
+        }
+    }
+
+    &.start-learning {
+        background-color: $color-primary;
+
+        h4 {
+            color: white !important;
+        }
+
+        .live-classes-container {
+            display: flex;
+            justify-content: space-between;
+
+            .live-class-card {
+                width: 30%;
             }
         }
     }
