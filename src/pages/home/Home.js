@@ -1,6 +1,7 @@
 import { Grid, Typography } from '@material-ui/core';
 import React, { Component, Fragment } from 'react';
 import AlertModal from '../../components/alert-modal/AlertModal';
+import CoursePreview from '../../components/course-preview/CoursePreview';
 import HomeHeader from '../../components/home-header/HomeHeader';
 import HomePromoCard from '../../components/home-promo-card/HomePromoCard';
 import LiveClass from '../../components/live-class/LiveClass';
@@ -40,6 +41,50 @@ class Home extends Component {
                     date: '15 Oct 2020',
                     imgURL: `${process.env.PUBLIC_URL}/img/ashwin.jpg`
                 }
+            ],
+            introductoryCourses: [
+                {
+                    name: 'INTRODUCTION TO STOCKS',
+                    classes: [
+                        {
+                            title: 'Assumptions of technical analysis',
+                            imgURL: `${process.env.PUBLIC_URL}/img/course-promos/intro-to-stocks/assumptions-of-technical-analysis.jpg`
+                        },
+                        {
+                            title: 'Charts',
+                            imgURL: `${process.env.PUBLIC_URL}/img/course-promos/intro-to-stocks/charts.jpg`
+                        },
+                        {
+                            title: 'Intro to trends',
+                            imgURL: `${process.env.PUBLIC_URL}/img/course-promos/intro-to-stocks/intro-to-trends.jpg`
+                        },
+                        {
+                            title: 'Parts of a trend',
+                            imgURL: `${process.env.PUBLIC_URL}/img/course-promos/intro-to-stocks/parts-of-a-trend.jpg`
+                        }
+                    ]
+                },
+                {
+                    name: 'GETTING STARTED',
+                    classes: [
+                        {
+                            title: 'Start here',
+                            imgURL: `${process.env.PUBLIC_URL}/img/course-promos/getting-started/start-here.jpg`
+                        },
+                        {
+                            title: 'Stock market basics',
+                            imgURL: `${process.env.PUBLIC_URL}/img/course-promos/getting-started/stock-market-basics.jpg`
+                        },
+                        {
+                            title: 'Opening a brokerage account',
+                            imgURL: `${process.env.PUBLIC_URL}/img/course-promos/getting-started/opening-a-brokerage-account.jpg`
+                        },
+                        {
+                            title: 'Useful websites, books and movies on stock trading',
+                            imgURL: `${process.env.PUBLIC_URL}/img/course-promos/getting-started/useful-resources-on-stock-trading.jpg`
+                        }
+                    ]
+                }
             ]
         };
     }
@@ -49,6 +94,10 @@ class Home extends Component {
     }
 
     onLiveClassBook = (event) => {
+
+    }
+
+    onCoursePreviewClassClicked = (event) => {
 
     }
 
@@ -117,6 +166,18 @@ class Home extends Component {
                                     })
                                 }
                             </div>
+                        </div>
+
+                        <div className="home-section new-to-markets">
+                            <Typography className="section-title" variant="h4" gutterBottom>
+                                NEW TO MARKETS?
+                            </Typography>
+
+                            {
+                                introductoryCourses.map((course) => {
+                                    return <CoursePreview course={course} onClick={this.onCoursePreviewClassClicked}></CoursePreview>
+                                })
+                            }
                         </div>
                     </Grid>
                 </Grid>
