@@ -1,0 +1,25 @@
+.course-preview-class-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+
+    &:last-child {
+        margin-bottom: 0 !important;
+    }
+
+    img {
+        width: 284px;
+        height: auto;
+        margin-bottom: 1rem;
+    }
+
+    .lesson-number {
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+
+    .class-title {
+        max-width: 84%;
+    }
+}

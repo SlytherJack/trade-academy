@@ -109,7 +109,8 @@ class Home extends Component {
             alertModalBody,
             alertModalBtnText,
             alertModalBtnAction,
-            liveClasses
+            liveClasses,
+            introductoryCourses
         } = this.state;
 
         const cardContents = [

@@ -1,0 +1,17 @@
+.course-preview-container {
+    display: flex;
+    flex-direction: column;
+
+    .name {
+        margin-bottom: 1rem;
+    }
+
+    .classes-container {
+        display: flex;
+        justify-content: space-between;
+
+        .course-preview-class-container {
+            width: 22%;
+        }
+    }
+}
